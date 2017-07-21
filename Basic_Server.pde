@@ -4,7 +4,7 @@ String ipAddress; //if not declared server will bind to all interfaces
 int port = 2202;
 
 int numChnls = 4;
-int r = 50;
+int r = 100;
 
 
 boolean[] chnlMuteStates = new boolean[numChnls];
@@ -12,7 +12,7 @@ boolean[] chnlMuteStates = new boolean[numChnls];
 Server myServer;
 
 void setup() {
-  size(400, 400);
+  size(1200, 400);
   background(0);
   //create server
   if (ipAddress != null) {
@@ -39,7 +39,7 @@ void draw() {
 
   //draw channel mute states
   for (int i = 0; i < numChnls; i++) {
-    int xPos = i * floor(width/numChnls) + 50;
+    int xPos = i * floor(width/numChnls) + (floor(width/numChnls)/2);
     if (chnlMuteStates[i]) {
       fill(255, 0, 0);
     } else {
