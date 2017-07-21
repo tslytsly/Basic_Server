@@ -1,6 +1,6 @@
 import processing.net.*;
 
-String ipAddress = "127.0.0.1";
+String ipAddress; //if not declared server will bind to all interfaces
 int port = 2202;
 
 int numChnls = 4;
@@ -15,8 +15,11 @@ void setup() {
   size(400, 400);
   background(0);
   //create server
-  myServer = new Server(this, port, ipAddress);
-
+  if (ipAddress != null) {
+    myServer = new Server(this, port, ipAddress);
+  } else {
+    myServer = new Server(this, port);
+  }
   // set mute states
   for (int i = 0; i < numChnls; i++) {
     chnlMuteStates[i] = random(0, 1) < 0.5;
@@ -60,13 +63,25 @@ void clientTraffic(Client client, String msg) {
       println("I have sent: " + reply + " to " + client.ip());
     }
     // is this a request to toggle a setting?
-  } else if (msg.contains("AUDIO_MUTE TOGGLE")) {
-    //which channel?
-    int chnl = int(msg.charAt(6))-49;
-    toggleMute(chnl);
-    String reply = getMute(chnl);
-    client.write(reply);
-    println("I have sent: " + reply + " to " + client.ip());
+  } else if (msg.contains("TOGGLE")) {
+    // mute state?
+    if (msg.contains("AUDIO_MUTE")) {
+      //which channel?
+      int chnl = int(msg.charAt(6))-49;
+      toggleMute(chnl);
+      String reply = getMute(chnl);
+      client.write(reply);
+      println("I have sent: " + reply + " to " + client.ip());
+    }
+    // is this a request to set something?
+  } else if (msg.contains("SET")) {// mute state?
+    if (msg.contains("AUDIO_MUTE")) {
+      //which channel?
+      int chnl = int(msg.charAt(6))-49;
+      String reply = setMute(chnl, msg.contains("ON"));
+      client.write(reply);
+      println("I have sent: " + reply + " to " + client.ip());
+    }
   }
 }
 
@@ -77,6 +92,20 @@ String getMute(int channel) {
     if (chnlMuteStates[channel]) {
       return "< REP "+ (channel + 1) + " AUDIO_MUTE ON >";
     } else {
+      return "< REP "+ (channel + 1) + " AUDIO_MUTE OFF >";
+    }
+  }
+}
+
+String setMute(int channel, boolean setOn) {
+  if (channel > chnlMuteStates.length) {
+    return "< ERR >";
+  } else {
+    if (setOn) {
+      chnlMuteStates[channel] = true;
+      return "< REP "+ (channel + 1) + " AUDIO_MUTE ON >";
+    } else {
+      chnlMuteStates[channel] = false;
       return "< REP "+ (channel + 1) + " AUDIO_MUTE OFF >";
     }
   }
