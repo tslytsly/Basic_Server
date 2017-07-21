@@ -4,6 +4,8 @@ String ipAddress = "127.0.0.1";
 int port = 2202;
 
 int numChnls = 4;
+int r = 50;
+
 
 boolean[] chnlMuteStates = new boolean[numChnls];
 
@@ -31,6 +33,17 @@ void draw() {
       clientTraffic(thisClient, whatClientSaid);
     }
   }
+
+  //draw channel mute states
+  for (int i = 0; i < numChnls; i++) {
+    int xPos = i * floor(width/numChnls) + 50;
+    if (chnlMuteStates[i]) {
+      fill(255, 0, 0);
+    } else {
+      fill(0, 255, 0);
+    }
+    ellipse(xPos, 100, r, r );
+  }
 }
 
 void clientTraffic(Client client, String msg) {
@@ -50,8 +63,8 @@ void clientTraffic(Client client, String msg) {
   } else if (msg.contains("AUDIO_MUTE TOGGLE")) {
     //which channel?
     int chnl = int(msg.charAt(6))-49;
-        toggleMute(chnl);
-        String reply = getMute(chnl);
+    toggleMute(chnl);
+    String reply = getMute(chnl);
     client.write(reply);
     println("I have sent: " + reply + " to " + client.ip());
   }
